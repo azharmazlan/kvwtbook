@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tempahan Bilik Khas</title>
+    <style>
+        body { 
+            font-family: 'Georgia', serif; 
+            margin: 20px; 
+            background-color: #f5f1e9; 
+            color: #333; 
+        }
+        h2 { 
+            text-align: center; 
+            color: #4a704a; 
+            font-size: 2.5em; 
+            border-bottom: 2px solid #4a704a; 
+            padding-bottom: 10px; 
+            letter-spacing: 2px; 
+        }
+        .form-group { 
+            margin-bottom: 20px; 
+            padding: 20px; 
+            background-color: #fff; 
+            border: 1px solid #d9c2a9; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+        label { 
+            font-weight: bold; 
+            color: #4a704a; 
+            font-size: 1.1em; 
+            margin-bottom: 5px; 
+            display: block; 
+        }
+        input, select, textarea { 
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 5px; 
+            box-sizing: border-box; 
+            border: 1px solid #d9c2a9; 
+            border-radius: 5px; 
+            font-family: 'Georgia', serif; 
+            background-color: #fafafa; 
+        }
+        .time-slot { 
+            display: inline-block; 
+            margin: 5px; 
+            padding: 12px; 
+            border: 1px solid #d9c2a9; 
+            cursor: pointer; 
+            background-color: #e8e0d5; 
+            border-radius: 5px; 
+            transition: all 0.3s ease; 
+        }
+        .time-slot.booked { 
+            background-color: #ffcccc; 
+            cursor: not-allowed; 
+        }
+        .time-slot.available { 
+            background-color: #d9e6d9; 
+        }
+        .time-slot.selected { 
+            background-color: #a3d8a3; 
+            font-weight: bold; 
+        }
+        button { 
+            background-color: #4a704a; 
+            color: #fff; 
+            padding: 12px 25px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            margin-right: 10px; 
+            font-family: 'Georgia', serif; 
+            font-size: 1em; 
+            transition: background-color 0.3s ease; 
+        }
+        button:hover { 
+            background-color: #3a5a3a; 
+        }
+        .admin-controls { 
+            margin-top: 20px; 
+            display: none; 
+        }
+        #appointment { 
+            display: flex; 
+            align-items: center; 
+        }
+        #appointment input { 
+            width: auto; 
+            margin-right: 15px; 
+            padding: 10px; 
+        }
+        .booking-item { 
+            margin: 10px 0; 
+            padding: 10px; 
+            background-color: #f5f1e9; 
+            border: 1px solid #d9c2a9; 
+            border-radius: 5px; 
+        }
+        .cancel-btn { 
+            background-color: #cc0000; 
+            padding: 5px 10px; 
+            margin-left: 10px; 
+        }
+        .cancel-btn:hover { 
+            background-color: #990000; 
+        }
+        #previousBookings { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background-color: #fff; 
+            border: 1px solid #d9c2a9; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+    </style>
+</head>
+<body>
+    <h2>TEMPAHAN BILIK KHAS</h2>
+    <div class="form-group">
+        <label>Name:</label>
+        <input type="text" id="name" placeholder="First Name Last Name">
+    </div>
+    <div class="form-group">
+        <label>Bilik Yang Ingin Ditempah:</label>
+        <select id="room">
+            <option value="">Please Select Room</option>
+            <option value="apd">Bilik APD</option>
+            <option value="kuliah">Bilik Kuliah</option>
+            <option value="selfLearning">Bilik Self Learning</option>
+            <option value="alamanda">Pusat Sumber Alamanda</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label>Special Requests:</label>
+        <textarea id="specialRequests"></textarea>
+    </div>
+    <div class="form-group">
+        <label>Appointment</label>
+        <div id="appointment">
+            <input type="date" id="date" value="28/06/2025" onfocus="(this.type='date')" onblur="(this.type='text')" pattern="\d{2}/\d{2}/\d{4}">
+            <div id="timeSlots">
+                <div class="time-slot" data-time="08:00">8:00 AM</div>
+                <div class="time-slot" data-time="09:00">9:00 AM</div>
+                <div class="time-slot" data-time="10:00">10:00 AM</div>
+                <div class="time-slot" data-time="11:00">11:00 AM</div>
+                <div class="time-slot" data-time="12:00">12:00 PM</div>
+                <div class="time-slot" data-time="13:00">1:00 PM</div>
+                <div class="time-slot" data-time="14:00">2:00 PM</div>
+                <div class="time-slot" data-time="15:00">3:00 PM</div>
+                <div class="time-slot" data-time="16:00">4:00 PM</div>
+                <div class="time-slot" data-time="17:00">5:00 PM</div>
+            </div>
+        </div>
+    </div>
+    <p style="text-align: center; color: #4a704a;">Sila berurusan dengan admin jika mahu menukar masa</p>
+    <button onclick="bookRoom()">Submit</button>
+    <button onclick="saveToExcel()">Save to Excel</button>
+    <button id="adminLoginBtn" onclick="toggleAdmin()">Admin Login</button>
+
+    <div class="admin-controls" id="adminControls">
+        <h3>Admin Controls</h3>
+        <div class="form-group">
+            <label>Admin Password:</label>
+            <input type="password" id="adminPassword" placeholder="Enter Password">
+            <button onclick="loginAdmin()">Login</button>
+        </div>
+        <div id="bookedSlots" style="display: none;"></div>
+        <button onclick="cancelSelectedBooking()" style="display: none;">Cancel Selected Booking</button>
+    </div>
+
+    <div id="previousBookings" style="display: none;">
+        <h3>Previous Bookings</h3>
+        <div id="bookingList"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
+    <script>
+        let bookings = [];
+        let adminMode = false;
+
+        function toggleAdmin() {
+            const adminControls = document.getElementById('adminControls');
+            if (!adminMode) {
+                adminControls.style.display = 'block';
+            } else {
+                adminControls.style.display = 'none';
+                document.getElementById('bookedSlots').style.display = 'none';
+                document.querySelector('button[onclick="cancelSelectedBooking()"]').style.display = 'none';
+                adminMode = false;
+            }
+        }
+
+        function loginAdmin() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === "KVWT INTEL") {
+                adminMode = true;
+                document.getElementById('bookedSlots').style.display = 'block';
+                document.querySelector('button[onclick="cancelSelectedBooking()"]').style.display = 'inline-block';
+                document.getElementById('adminPassword').value = '';
+                updateBookedSlots();
+            } else {
+                alert("Incorrect Password!");
+            }
+        }
+
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', () => {
+                if (!slot.classList.contains('booked') && !slot.classList.contains('selected')) {
+                    slot.classList.add('selected');
+                    slot.classList.add('available');
+                } else if (slot.classList.contains('selected')) {
+                    slot.classList.remove('selected');
+                    slot.classList.remove('available');
+                }
+            });
+        });
+
+        function bookRoom() {
+            const name = document.getElementById('name').value;
+            const room = document.getElementById('room').value;
+            const specialRequests = document.getElementById('specialRequests').value;
+            let date = document.getElementById('date').value; // Date from input in YYYY-MM-DD
+            // Convert to DD/MM/YYYY
+            if (date) {
+                const [year, month, day] = date.split('-');
+                date = `${day}/${month}/${year}`;
+            }
+            const selectedTimes = Array.from(document.querySelectorAll('.time-slot.selected')).map(slot => slot.dataset.time);
+
+            if (name && room && selectedTimes.length) {
+                const booking = { name, room, times: selectedTimes, specialRequests, date };
+                bookings.push(booking);
+                selectedTimes.forEach(time => {
+                    document.querySelector(`.time-slot[data-time="${time}"]`).classList.add('booked');
+                    document.querySelector(`.time-slot[data-time="${time}"]`).classList.remove('selected', 'available');
+                });
+                alert('Booking successful!');
+                document.getElementById('name').value = '';
+                document.getElementById('specialRequests').value = '';
+                document.getElementById('room').value = '';
+                updatePreviousBookings();
+            } else {
+                alert('Please fill all fields and select at least one time slot.');
+            }
+        }
+
+        function updateBookedSlots() {
+            const bookedSlotsDiv = document.getElementById('bookedSlots');
+            bookedSlotsDiv.innerHTML = bookings.map((b, index) => `
+                <div class="booking-item">
+                    ${b.name} - ${b.room}: ${b.times.join(', ')} on ${b.date}
+                    <button class="cancel-btn" onclick="cancelBooking(${index})">Cancel</button>
+                </div>
+            `).join('');
+        }
+
+        function cancelBooking(index) {
+            if (adminMode) {
+                const booking = bookings[index];
+                booking.times.forEach(time => {
+                    document.querySelector(`.time-slot[data-time="${time}"]`).classList.remove('booked');
+                });
+                bookings.splice(index, 1);
+                updateBookedSlots();
+                updatePreviousBookings();
+                alert('Booking cancelled!');
+            }
+        }
+
+        function cancelSelectedBooking() {
+            if (adminMode) {
+                const index = prompt("Enter the index of the booking to cancel (0 to " + (bookings.length - 1) + "):");
+                const numIndex = parseInt(index);
+                if (!isNaN(numIndex) && numIndex >= 0 && numIndex < bookings.length) {
+                    cancelBooking(numIndex);
+                } else {
+                    alert('Invalid index!');
+                }
+            }
+        }
+
+        function updatePreviousBookings() {
+            const bookingListDiv = document.getElementById('bookingList');
+            const previousBookingsDiv = document.getElementById('previousBookings');
+            if (bookings.length > 0) {
+                bookingListDiv.innerHTML = bookings.map(b => `
+                    <div class="booking-item">
+                        ${b.name} - ${b.room}: ${b.times.join(', ')} on ${b.date}
+                    </div>
+                `).join('');
+                previousBookingsDiv.style.display = 'block';
+            } else {
+                bookingListDiv.innerHTML = '<p>No previous bookings.</p>';
+                previousBookingsDiv.style.display = 'block';
+            }
+        }
+
+        function saveToExcel() {
+            const ws = XLSX.utils.json_to_sheet(bookings);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Bookings");
+            XLSX.writeFile(wb, "bookings.xlsx");
+        }
+    </script>
+</body>
+</html>
